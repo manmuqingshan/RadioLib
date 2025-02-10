@@ -877,6 +877,7 @@ class LR11x0: public PhysicalLayer {
     using PhysicalLayer::transmit;
     using PhysicalLayer::receive;
     using PhysicalLayer::startTransmit;
+    using PhysicalLayer::startReceive;
     using PhysicalLayer::readData;
 
     /*!
@@ -1074,16 +1075,6 @@ class LR11x0: public PhysicalLayer {
     void clearPacketSentAction() override;
 
     /*!
-      \brief Interrupt-driven binary transmit method.
-      Overloads for string-based transmissions are implemented in PhysicalLayer.
-      \param data Binary data to be sent.
-      \param len Number of bytes to send.
-      \param addr Address to send the data to. Will only be added if address filtering was enabled.
-      \returns \ref status_codes
-    */
-    int16_t startTransmit(const uint8_t* data, size_t len, uint8_t addr = 0) override;
-
-    /*!
       \brief Clean up after transmission is done.
       \returns \ref status_codes
     */
@@ -1096,20 +1087,6 @@ class LR11x0: public PhysicalLayer {
       \returns \ref status_codes
     */
     int16_t startReceive() override;
-
-    /*!
-      \brief Interrupt-driven receive method. IRQ1 will be activated when full packet is received.
-      \param timeout Raw timeout value, expressed as multiples of 1/32.768 kHz (approximately 30.52 us).
-      Defaults to RADIOLIB_LR11X0_RX_TIMEOUT_INF for infinite timeout (Rx continuous mode),
-      set to RADIOLIB_LR11X0_RX_TIMEOUT_NONE for no timeout (Rx single mode).
-      If timeout other than infinite is set, signal will be generated on IRQ1.
-
-      \param irqFlags Sets the IRQ flags that will trigger IRQ1, defaults to RADIOLIB_LR11X0_IRQ_RX_DONE.
-      \param irqMask Only for PhysicalLayer compatibility, not used.
-      \param len Only for PhysicalLayer compatibility, not used.
-      \returns \ref status_codes
-    */
-    int16_t startReceive(uint32_t timeout, uint32_t irqFlags = RADIOLIB_LR11X0_IRQ_RX_DONE, uint32_t irqMask = 0, size_t len = 0);
 
     /*!
       \brief Reads the current IRQ status.
@@ -1622,15 +1599,21 @@ class LR11x0: public PhysicalLayer {
     */
     int16_t calibrateImageRejection(float freqMin, float freqMax);
     
+    /*! \copydoc PhysicalLayer::stageMode */
+    int16_t stageMode(RadioModeType_t mode, RadioModeConfig_t* cfg) override;
+
+    /*! \copydoc PhysicalLayer::launchMode */
+    int16_t launchMode() override;
+    
 #if !RADIOLIB_GODMODE && !RADIOLIB_LOW_LEVEL
   protected:
 #endif
     Module* getMod() override;
 
     // LR11x0 SPI command implementations
-    int16_t writeRegMem32(uint32_t addr, uint32_t* data, size_t len);
+    int16_t writeRegMem32(uint32_t addr, const uint32_t* data, size_t len);
     int16_t readRegMem32(uint32_t addr, uint32_t* data, size_t len);
-    int16_t writeBuffer8(uint8_t* data, size_t len);
+    int16_t writeBuffer8(const uint8_t* data, size_t len);
     int16_t readBuffer8(uint8_t* data, size_t len, size_t offset);
     int16_t clearRxBuffer(void);
     int16_t writeRegMemMask32(uint32_t addr, uint32_t mask, uint32_t data);
@@ -1644,7 +1627,7 @@ class LR11x0: public PhysicalLayer {
     int16_t setDioAsRfSwitch(uint8_t en, uint8_t stbyCfg, uint8_t rxCfg, uint8_t txCfg, uint8_t txHpCfg, uint8_t txHfCfg, uint8_t gnssCfg, uint8_t wifiCfg);
     int16_t setDioIrqParams(uint32_t irq1, uint32_t irq2);
     int16_t setDioIrqParams(uint32_t irq);
-    int16_t clearIrq(uint32_t irq);
+    int16_t clearIrqState(uint32_t irq);
     int16_t configLfClock(uint8_t setup);
     int16_t setTcxoMode(uint8_t tune, uint32_t delay);
     int16_t reboot(bool stay);
@@ -1702,11 +1685,11 @@ class LR11x0: public PhysicalLayer {
     int16_t setRangingParameter(uint8_t symbolNum);
     int16_t setRssiCalibration(const int8_t* tune, int16_t gainOffset);
     int16_t setLoRaSyncWord(uint8_t sync);
-    int16_t lrFhssBuildFrame(uint8_t hdrCount, uint8_t cr, uint8_t grid, bool hop, uint8_t bw, uint16_t hopSeq, int8_t devOffset, uint8_t* payload, size_t len);
+    int16_t lrFhssBuildFrame(uint8_t hdrCount, uint8_t cr, uint8_t grid, bool hop, uint8_t bw, uint16_t hopSeq, int8_t devOffset, const uint8_t* payload, size_t len);
     int16_t lrFhssSetSyncWord(uint32_t sync);
-    int16_t configBleBeacon(uint8_t chan, uint8_t* payload, size_t len);
+    int16_t configBleBeacon(uint8_t chan, const uint8_t* payload, size_t len);
     int16_t getLoRaRxHeaderInfos(uint8_t* info);
-    int16_t bleBeaconSend(uint8_t chan, uint8_t* payload, size_t len);
+    int16_t bleBeaconSend(uint8_t chan, const uint8_t* payload, size_t len);
 
     int16_t wifiScan(uint8_t type, uint16_t mask, uint8_t acqMode, uint8_t nbMaxRes, uint8_t nbScanPerChan, uint16_t timeout, uint8_t abortOnTimeout);
     int16_t wifiScanTimeLimit(uint8_t type, uint16_t mask, uint8_t acqMode, uint8_t nbMaxRes, uint16_t timePerChan, uint16_t timeout);
@@ -1744,7 +1727,7 @@ class LR11x0: public PhysicalLayer {
     int16_t gnssGetResultSize(uint16_t* size);
     int16_t gnssReadResults(uint8_t* result, uint16_t size);
     int16_t gnssAlmanacFullUpdateHeader(uint16_t date, uint32_t globalCrc);
-    int16_t gnssAlmanacFullUpdateSV(uint8_t svn, uint8_t* svnAlmanac);
+    int16_t gnssAlmanacFullUpdateSV(uint8_t svn, const uint8_t* svnAlmanac);
     int16_t gnssAlmanacReadAddrSize(uint32_t* addr, uint16_t* size);
     int16_t gnssAlmanacReadSV(uint8_t svId, uint8_t* almanac);
     int16_t gnssGetNbSvVisible(uint32_t time, float lat, float lon, uint8_t constellation, uint8_t* nbSv);
@@ -1773,29 +1756,29 @@ class LR11x0: public PhysicalLayer {
     int16_t gnssWriteBitMaskSatActivated(uint8_t bitMask, uint32_t* bitMaskActivated0, uint32_t* bitMaskActivated1);
     void gnssAbort();
 
-    int16_t cryptoSetKey(uint8_t keyId, uint8_t* key);
-    int16_t cryptoDeriveKey(uint8_t srcKeyId, uint8_t dstKeyId, uint8_t* key);
-    int16_t cryptoProcessJoinAccept(uint8_t decKeyId, uint8_t verKeyId, uint8_t lwVer, uint8_t* header, uint8_t* dataIn, size_t len, uint8_t* dataOut);
-    int16_t cryptoComputeAesCmac(uint8_t keyId, uint8_t* data, size_t len, uint32_t* mic);
-    int16_t cryptoVerifyAesCmac(uint8_t keyId, uint32_t micExp, uint8_t* data, size_t len, bool* result);
-    int16_t cryptoAesEncrypt01(uint8_t keyId, uint8_t* dataIn, size_t len, uint8_t* dataOut);
-    int16_t cryptoAesEncrypt(uint8_t keyId, uint8_t* dataIn, size_t len, uint8_t* dataOut);
-    int16_t cryptoAesDecrypt(uint8_t keyId, uint8_t* dataIn, size_t len, uint8_t* dataOut);
+    int16_t cryptoSetKey(uint8_t keyId, const uint8_t* key);
+    int16_t cryptoDeriveKey(uint8_t srcKeyId, uint8_t dstKeyId, const uint8_t* key);
+    int16_t cryptoProcessJoinAccept(uint8_t decKeyId, uint8_t verKeyId, uint8_t lwVer, const uint8_t* header, const uint8_t* dataIn, size_t len, uint8_t* dataOut);
+    int16_t cryptoComputeAesCmac(uint8_t keyId, const uint8_t* data, size_t len, uint32_t* mic);
+    int16_t cryptoVerifyAesCmac(uint8_t keyId, uint32_t micExp, const uint8_t* data, size_t len, bool* result);
+    int16_t cryptoAesEncrypt01(uint8_t keyId, const uint8_t* dataIn, size_t len, uint8_t* dataOut);
+    int16_t cryptoAesEncrypt(uint8_t keyId, const uint8_t* dataIn, size_t len, uint8_t* dataOut);
+    int16_t cryptoAesDecrypt(uint8_t keyId, const uint8_t* dataIn, size_t len, uint8_t* dataOut);
     int16_t cryptoStoreToFlash(void);
     int16_t cryptoRestoreFromFlash(void);
     int16_t cryptoSetParam(uint8_t id, uint32_t value);
     int16_t cryptoGetParam(uint8_t id, uint32_t* value);
-    int16_t cryptoCheckEncryptedFirmwareImage(uint32_t offset, uint32_t* data, size_t len, bool nonvolatile);
+    int16_t cryptoCheckEncryptedFirmwareImage(uint32_t offset, const uint32_t* data, size_t len, bool nonvolatile);
     int16_t cryptoCheckEncryptedFirmwareImageResult(bool* result);
 
     int16_t bootEraseFlash(void);
-    int16_t bootWriteFlashEncrypted(uint32_t offset, uint32_t* data, size_t len, bool nonvolatile);
+    int16_t bootWriteFlashEncrypted(uint32_t offset, const uint32_t* data, size_t len, bool nonvolatile);
     int16_t bootReboot(bool stay);
     int16_t bootGetPin(uint8_t* pin);
     int16_t bootGetChipEui(uint8_t* eui);
     int16_t bootGetJoinEui(uint8_t* eui);
     
-    int16_t SPIcommand(uint16_t cmd, bool write, uint8_t* data, size_t len, uint8_t* out = NULL, size_t outLen = 0);
+    int16_t SPIcommand(uint16_t cmd, bool write, uint8_t* data, size_t len, const uint8_t* out = NULL, size_t outLen = 0);
     
 #if !RADIOLIB_GODMODE
   protected:
@@ -1829,6 +1812,7 @@ class LR11x0: public PhysicalLayer {
 
     uint8_t wifiScanMode = 0;
     bool gnss = false;
+    uint32_t rxTimeout = 0;
 
     int16_t modSetup(float tcxoVoltage, uint8_t modem);
     static int16_t SPIparseStatus(uint8_t in);
@@ -1840,9 +1824,9 @@ class LR11x0: public PhysicalLayer {
     int16_t setHeaderType(uint8_t hdrType, size_t len = 0xFF);
 
     // common methods to avoid some copy-paste
-    int16_t bleBeaconCommon(uint16_t cmd, uint8_t chan, uint8_t* payload, size_t len);
+    int16_t bleBeaconCommon(uint16_t cmd, uint8_t chan, const uint8_t* payload, size_t len);
     int16_t writeCommon(uint16_t cmd, uint32_t addrOffset, const uint32_t* data, size_t len, bool nonvolatile);
-    int16_t cryptoCommon(uint16_t cmd, uint8_t keyId, uint8_t* dataIn, size_t len, uint8_t* dataOut);
+    int16_t cryptoCommon(uint16_t cmd, uint8_t keyId, const uint8_t* dataIn, size_t len, uint8_t* dataOut);
 };
 
 #endif

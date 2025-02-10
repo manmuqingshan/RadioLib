@@ -8,7 +8,7 @@ SX1278::SX1278(Module* mod) : SX127x(mod) {
 
 int16_t SX1278::begin(float freq, float bw, uint8_t sf, uint8_t cr, uint8_t syncWord, int8_t power, uint16_t preambleLength, uint8_t gain) {
   // execute common part
-  uint8_t versions[] = { RADIOLIB_SX1278_CHIP_VERSION, RADIOLIB_SX1278_CHIP_VERSION_ALT, RADIOLIB_SX1278_CHIP_VERSION_RFM9X };
+  const uint8_t versions[] = { RADIOLIB_SX1278_CHIP_VERSION, RADIOLIB_SX1278_CHIP_VERSION_ALT, RADIOLIB_SX1278_CHIP_VERSION_RFM9X };
   int16_t state = SX127x::begin(versions, 3, syncWord, preambleLength);
   RADIOLIB_ASSERT(state);
 
@@ -40,7 +40,7 @@ int16_t SX1278::begin(float freq, float bw, uint8_t sf, uint8_t cr, uint8_t sync
 
 int16_t SX1278::beginFSK(float freq, float br, float freqDev, float rxBw, int8_t power, uint16_t preambleLength, bool enableOOK) {
   // execute common part
-  uint8_t versions[] = { RADIOLIB_SX1278_CHIP_VERSION, RADIOLIB_SX1278_CHIP_VERSION_ALT, RADIOLIB_SX1278_CHIP_VERSION_RFM9X };
+  const uint8_t versions[] = { RADIOLIB_SX1278_CHIP_VERSION, RADIOLIB_SX1278_CHIP_VERSION_ALT, RADIOLIB_SX1278_CHIP_VERSION_RFM9X };
   int16_t state = SX127x::beginFSK(versions, 3, freqDev, rxBw, preambleLength, enableOOK);
   RADIOLIB_ASSERT(state);
 
@@ -344,9 +344,9 @@ int16_t SX1278::checkOutputPower(int8_t power, int8_t* clipped, bool useRfo) {
   if(useRfo) {
     // RFO output
     if(clipped) {
-      *clipped = RADIOLIB_MAX(-3, RADIOLIB_MIN(15, power));
+      *clipped = RADIOLIB_MAX(-4, RADIOLIB_MIN(15, power));
     }
-    RADIOLIB_CHECK_RANGE(power, -3, 15, RADIOLIB_ERR_INVALID_OUTPUT_POWER);
+    RADIOLIB_CHECK_RANGE(power, -4, 15, RADIOLIB_ERR_INVALID_OUTPUT_POWER);
   } else {
     // PA_BOOST output, check high-power operation
     if(clipped) {

@@ -208,6 +208,11 @@
 #define RADIOLIB_LORAWAN_MAX_MAC_COMMAND_LEN_UP                 (2)
 #define RADIOLIB_LORAWAN_MAX_NUM_ADR_COMMANDS                   (8)
 
+#define RADIOLIB_LORAWAN_MAX_DOWNLINK_SIZE                      (250)
+
+// threshold at which sleeping via user callback enabled, in ms
+#define RADIOLIB_LORAWAN_DELAY_SLEEP_THRESHOLD                  (50)
+
 /*!
   \struct LoRaWANMacCommand_t
   \brief MAC command specification structure.
@@ -830,6 +835,18 @@ class LoRaWANNode {
     */
     uint8_t getMaxPayloadLen();
 
+    /*! \brief Callback to a user-provided sleep function. */
+    typedef void (*SleepCb_t)(RadioLibTime_t ms);
+
+    /*! 
+      \brief Set custom delay/sleep function callback. If set, LoRaWAN node will call
+      this function to wait for periods of time longer than RADIOLIB_LORAWAN_DELAY_SLEEP_THRESHOLD.
+      This can be used to lower the power consumption by putting the host microcontroller to sleep.
+      NOTE: Since this method will call a user-provided function, it is up to the user to ensure
+      that the time duration spent in that sleep function is accurate to at least 1 ms!
+    */
+    void setSleepFunction(SleepCb_t cb); 
+
     /*! 
       \brief TS009 Protocol Specification Verification switch
       (allows FPort 224 and cuts off uplink payload instead of rejecting if maximum length exceeded).
@@ -848,7 +865,7 @@ class LoRaWANNode {
       500 is the **maximum** value, but it is not a good idea to go anywhere near that.
       If you have to go above 50 you probably have a bug somewhere. Check your device timing.
     */
-    RadioLibTime_t scanGuard = 10;
+    RadioLibTime_t scanGuard = 5;
 
 #if !RADIOLIB_GODMODE
   protected:
@@ -971,6 +988,8 @@ class LoRaWANNode {
     // allow port 226 for devices implementing TS011
     bool TS011 = false;
 
+    SleepCb_t sleepCb = nullptr;
+
     // this will reset the device credentials, so the device starts completely new
     void clearNonces();
 
@@ -984,7 +1003,7 @@ class LoRaWANNode {
     int16_t processJoinAccept(LoRaWANJoinEvent_t *joinEvent);
 
     // a join-accept can piggy-back a set of channels or channel masks
-    void processCFList(uint8_t* cfList);
+    void processCFList(const uint8_t* cfList);
 
     // check whether payload length and fport are allowed
     int16_t isValidUplink(uint8_t* len, uint8_t fPort);
@@ -999,7 +1018,7 @@ class LoRaWANNode {
     void micUplink(uint8_t* inOut, uint8_t lenInOut);
 
     // transmit uplink buffer on a specified channel
-    int16_t transmitUplink(LoRaWANChannel_t* chnl, uint8_t* in, uint8_t len, bool retrans);
+    int16_t transmitUplink(const LoRaWANChannel_t* chnl, uint8_t* in, uint8_t len, bool retrans);
 
     // wait for, open and listen during receive windows; only performs listening
     int16_t receiveCommon(uint8_t dir, const LoRaWANChannel_t* dlChannels, const RadioLibTime_t* dlDelays, uint8_t numWindows, RadioLibTime_t tReference);
@@ -1028,7 +1047,8 @@ class LoRaWANNode {
 
     // get the length of a certain MAC command in a specific direction (up/down)
     // if inclusive is true, add one for the CID byte
-    int16_t getMacLen(uint8_t cid, uint8_t* len, uint8_t dir, bool inclusive = false);
+    // include payload in case the MAC command has a dynamic length
+    virtual int16_t getMacLen(uint8_t cid, uint8_t* len, uint8_t dir, bool inclusive = false, uint8_t* payload = NULL);
 
     // find out of a MAC command should persist destruction
     // in uplink direction, some commands must persist if no downlink is received
@@ -1036,10 +1056,10 @@ class LoRaWANNode {
     bool isPersistentMacCommand(uint8_t cid, uint8_t dir);
 
     // push MAC command to queue, done by copy
-    int16_t pushMacCommand(uint8_t cid, uint8_t* cOcts, uint8_t* out, uint8_t* lenOut, uint8_t dir);
+    int16_t pushMacCommand(uint8_t cid, const uint8_t* cOcts, uint8_t* out, uint8_t* lenOut, uint8_t dir);
 
     // retrieve the payload of a certain MAC command, if present in the buffer
-    int16_t getMacPayload(uint8_t cid, uint8_t* in, uint8_t lenIn, uint8_t* out, uint8_t dir);
+    int16_t getMacPayload(uint8_t cid, const uint8_t* in, uint8_t lenIn, uint8_t* out, uint8_t dir);
 
     // delete a specific MAC command from queue, indicated by the command ID
     int16_t deleteMacCommand(uint8_t cid, uint8_t* inOut, uint8_t* lenInOut, uint8_t dir);
@@ -1087,7 +1107,7 @@ class LoRaWANNode {
 #endif
 
     // method to generate message integrity code
-    uint32_t generateMIC(uint8_t* msg, size_t len, uint8_t* key);
+    uint32_t generateMIC(const uint8_t* msg, size_t len, uint8_t* key);
 
     // method to verify message integrity code
     // it assumes that the MIC is the last 4 bytes of the message
@@ -1098,6 +1118,9 @@ class LoRaWANNode {
 
     // function to encrypt and decrypt payloads (regular uplink/downlink)
     void processAES(const uint8_t* in, size_t len, uint8_t* key, uint8_t* out, uint32_t fCnt, uint8_t dir, uint8_t ctrId, bool counter);
+
+    // function that allows sleeping via user-provided callback
+    void sleepDelay(RadioLibTime_t ms);
 
     // 16-bit checksum method that takes a uint8_t array of even length and calculates the checksum
     static uint16_t checkSum16(const uint8_t *key, uint16_t keyLen);

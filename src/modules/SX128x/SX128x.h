@@ -354,6 +354,7 @@ class SX128x: public PhysicalLayer {
     using PhysicalLayer::transmit;
     using PhysicalLayer::receive;
     using PhysicalLayer::startTransmit;
+    using PhysicalLayer::startReceive;
     using PhysicalLayer::readData;
 
     /*!
@@ -531,16 +532,6 @@ class SX128x: public PhysicalLayer {
     void clearPacketSentAction() override;
 
     /*!
-      \brief Interrupt-driven binary transmit method.
-      Overloads for string-based transmissions are implemented in PhysicalLayer.
-      \param data Binary data to be sent.
-      \param len Number of bytes to send.
-      \param addr Address to send the data to. Unsupported, compatibility only.
-      \returns \ref status_codes
-    */
-    int16_t startTransmit(const uint8_t* data, size_t len, uint8_t addr = 0) override;
-
-    /*!
       \brief Clean up after transmission is done.
       \returns \ref status_codes
     */
@@ -553,20 +544,6 @@ class SX128x: public PhysicalLayer {
       \returns \ref status_codes
     */
     int16_t startReceive() override;
-
-    /*!
-      \brief Interrupt-driven receive method. DIO1 will be activated when full packet is received.
-      \param timeout Raw timeout value, expressed as multiples of 15.625 us. Defaults to
-      RADIOLIB_SX128X_RX_TIMEOUT_INF for infinite timeout (Rx continuous mode),
-      set to RADIOLIB_SX128X_RX_TIMEOUT_NONE for no timeout (Rx single mode).
-      If timeout other than infinite is set, signal will be generated on DIO1.
-
-      \param irqFlags Sets the IRQ flags, defaults to RX done, RX timeout, CRC error and header error. 
-      \param irqMask Sets the mask of IRQ flags that will trigger DIO1, defaults to RX done.
-      \param len Only for PhysicalLayer compatibility, not used.
-      \returns \ref status_codes
-    */
-    int16_t startReceive(uint16_t timeout, RadioLibIrqFlags_t irqFlags = RADIOLIB_IRQ_RX_DEFAULT_FLAGS, RadioLibIrqFlags_t irqMask = RADIOLIB_IRQ_RX_DEFAULT_MASK, size_t len = 0);
 
     /*!
       \brief Reads the current IRQ status.
@@ -863,6 +840,12 @@ class SX128x: public PhysicalLayer {
       \returns \ref status_codes
     */
     int16_t invertIQ(bool enable) override;
+    
+    /*! \copydoc PhysicalLayer::stageMode */
+    int16_t stageMode(RadioModeType_t mode, RadioModeConfig_t* cfg) override;
+
+    /*! \copydoc PhysicalLayer::launchMode */
+    int16_t launchMode() override;
 
     #if !RADIOLIB_EXCLUDE_DIRECT_RECEIVE
     /*!
@@ -890,9 +873,9 @@ class SX128x: public PhysicalLayer {
 
     // SX128x SPI command implementations
     uint8_t getStatus();
-    int16_t writeRegister(uint16_t addr, uint8_t* data, uint8_t numBytes);
+    int16_t writeRegister(uint16_t addr, const uint8_t* data, uint8_t numBytes);
     int16_t readRegister(uint16_t addr, uint8_t* data, uint8_t numBytes);
-    int16_t writeBuffer(uint8_t* data, uint8_t numBytes, uint8_t offset = 0x00);
+    int16_t writeBuffer(const uint8_t* data, uint8_t numBytes, uint8_t offset = 0x00);
     int16_t readBuffer(uint8_t* data, uint8_t numBytes, uint8_t offset = 0x00);
     int16_t setTx(uint16_t periodBaseCount = RADIOLIB_SX128X_TX_TIMEOUT_NONE, uint8_t periodBase = RADIOLIB_SX128X_PERIOD_BASE_15_625_US);
     int16_t setRx(uint16_t periodBaseCount, uint8_t periodBase = RADIOLIB_SX128X_PERIOD_BASE_15_625_US);
@@ -920,6 +903,7 @@ class SX128x: public PhysicalLayer {
 
     // common parameters
     uint8_t power = 0;
+    uint32_t rxTimeout = 0;
 
     // cached LoRa parameters
     uint8_t invertIQEnabled = RADIOLIB_SX128X_LORA_IQ_STANDARD;

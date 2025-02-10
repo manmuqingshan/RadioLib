@@ -478,6 +478,7 @@ class SX126x: public PhysicalLayer {
     using PhysicalLayer::transmit;
     using PhysicalLayer::receive;
     using PhysicalLayer::startTransmit;
+    using PhysicalLayer::startReceive;
     using PhysicalLayer::readData;
 
     /*!
@@ -628,18 +629,25 @@ class SX126x: public PhysicalLayer {
     */
     int16_t standby(uint8_t mode, bool wakeup = true);
 
+    /*!
+      \brief Handle LR-FHSS hop. 
+      When using LR-FHSS in interrupt-driven mode, this method MUST be called each time an interrupt is triggered!
+      \returns \ref status_codes
+    */
+    int16_t hopLRFHSS();
+
     // interrupt methods
 
     /*!
       \brief Sets interrupt service routine to call when DIO1 activates.
       \param func ISR to call.
     */
-    void setDio1Action(void (*func)(void));
+    virtual void setDio1Action(void (*func)(void));
 
     /*!
       \brief Clears interrupt service routine to call when DIO1 activates.
     */
-    void clearDio1Action();
+    virtual void clearDio1Action();
 
     /*!
       \brief Sets interrupt service routine to call when a packet is received.
@@ -675,16 +683,6 @@ class SX126x: public PhysicalLayer {
     void clearChannelScanAction() override;
 
     /*!
-      \brief Interrupt-driven binary transmit method.
-      Overloads for string-based transmissions are implemented in PhysicalLayer.
-      \param data Binary data to be sent.
-      \param len Number of bytes to send.
-      \param addr Address to send the data to. Will only be added if address filtering was enabled.
-      \returns \ref status_codes
-    */
-    int16_t startTransmit(const uint8_t* data, size_t len, uint8_t addr = 0) override;
-
-    /*!
       \brief Clean up after transmission is done.
       \returns \ref status_codes
     */
@@ -697,23 +695,6 @@ class SX126x: public PhysicalLayer {
       \returns \ref status_codes
     */
     int16_t startReceive() override;
-
-    /*!
-      \brief Interrupt-driven receive method. DIO1 will be activated when full packet is received.
-      \param timeout Receive mode type and/or raw timeout value, expressed as multiples of 15.625 us.
-      When set to RADIOLIB_SX126X_RX_TIMEOUT_INF, the timeout will be infinite and the device will remain
-      in Rx mode until explicitly commanded to stop (Rx continuous mode).
-      When set to RADIOLIB_SX126X_RX_TIMEOUT_NONE, there will be no timeout and the device will return
-      to standby when a packet is received (Rx single mode).
-      For any other value, timeout will be applied and signal will be generated on DIO1 for conditions
-      defined by irqFlags and irqMask.
-
-      \param irqFlags Sets the IRQ flags, defaults to RX done, RX timeout, CRC error and header error.
-      \param irqMask Sets the mask of IRQ flags that will trigger DIO1, defaults to RX done.
-      \param len Only for PhysicalLayer compatibility, not used.
-      \returns \ref status_codes
-    */
-    int16_t startReceive(uint32_t timeout, RadioLibIrqFlags_t irqFlags = RADIOLIB_IRQ_RX_DEFAULT_FLAGS, RadioLibIrqFlags_t irqMask = RADIOLIB_IRQ_RX_DEFAULT_MASK, size_t len = 0);
 
     /*!
       \brief Interrupt-driven receive method where the device mostly sleeps and periodically wakes to listen.
@@ -1138,6 +1119,12 @@ class SX126x: public PhysicalLayer {
       \returns \ref status_codes
     */
     int16_t getModem(ModemType_t* modem) override;
+    
+    /*! \copydoc PhysicalLayer::stageMode */
+    int16_t stageMode(RadioModeType_t mode, RadioModeConfig_t* cfg) override;
+
+    /*! \copydoc PhysicalLayer::launchMode */
+    int16_t launchMode() override;
 
     #if !RADIOLIB_EXCLUDE_DIRECT_RECEIVE
     /*!
@@ -1238,14 +1225,14 @@ class SX126x: public PhysicalLayer {
     int16_t setTx(uint32_t timeout = 0);
     int16_t setRx(uint32_t timeout);
     int16_t setCad(uint8_t symbolNum, uint8_t detPeak, uint8_t detMin, uint8_t exitMode, RadioLibTime_t timeout);
-    int16_t writeRegister(uint16_t addr, uint8_t* data, uint8_t numBytes);
+    int16_t writeRegister(uint16_t addr, const uint8_t* data, uint8_t numBytes);
     int16_t readRegister(uint16_t addr, uint8_t* data, uint8_t numBytes);
-    int16_t writeBuffer(uint8_t* data, uint8_t numBytes, uint8_t offset = 0x00);
+    int16_t writeBuffer(const uint8_t* data, uint8_t numBytes, uint8_t offset = 0x00);
     int16_t readBuffer(uint8_t* data, uint8_t numBytes, uint8_t offset = 0x00);
     int16_t setDioIrqParams(uint16_t irqMask, uint16_t dio1Mask, uint16_t dio2Mask = RADIOLIB_SX126X_IRQ_NONE, uint16_t dio3Mask = RADIOLIB_SX126X_IRQ_NONE);
     virtual int16_t clearIrqStatus(uint16_t clearIrqParams = RADIOLIB_SX126X_IRQ_ALL);
     int16_t setRfFrequency(uint32_t frf);
-    int16_t calibrateImage(uint8_t* data);
+    int16_t calibrateImage(const uint8_t* data);
     uint8_t getPacketType();
     int16_t setTxParams(uint8_t power, uint8_t rampTime);
     int16_t setModulationParams(uint8_t sf, uint8_t bw, uint8_t cr, uint8_t ldro);
@@ -1297,6 +1284,7 @@ class SX126x: public PhysicalLayer {
 
     size_t implicitLen = 0;
     uint8_t invertIQEnabled = RADIOLIB_SX126X_LORA_IQ_STANDARD;
+    uint32_t rxTimeout = 0;
 
     // LR-FHSS stuff - there's a lot of it because all the encoding happens in software
     uint8_t lrFhssCr = RADIOLIB_SX126X_LR_FHSS_CR_2_3;
