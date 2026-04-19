@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2026-04-17 00:43:45</td>
+            <td class="headerValue">2026-04-19 14:43:38</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">16</td>
@@ -96,63 +96,63 @@
 <a name="34"><span class="lineNum">      34 </span>            :   public:</a>
 <a name="35"><span class="lineNum">      35 </span>            :     bool spiLogEnabled = true;</a>
 <a name="36"><span class="lineNum">      36 </span>            : </a>
-<a name="37"><span class="lineNum">      37 </span><span class="lineCov">          5 :     TestHal() : RadioLibHal(TEST_HAL_INPUT, TEST_HAL_OUTPUT, TEST_HAL_LOW, TEST_HAL_HIGH, TEST_HAL_RISING, TEST_HAL_FALLING) { }</span></a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineCov">          6 :     TestHal() : RadioLibHal(TEST_HAL_INPUT, TEST_HAL_OUTPUT, TEST_HAL_LOW, TEST_HAL_HIGH, TEST_HAL_RISING, TEST_HAL_FALLING) { }</span></a>
 <a name="38"><span class="lineNum">      38 </span>            : </a>
-<a name="39"><span class="lineNum">      39 </span><span class="lineCov">          5 :     void init() override {</span></a>
+<a name="39"><span class="lineNum">      39 </span><span class="lineCov">          6 :     void init() override {</span></a>
 <a name="40"><span class="lineNum">      40 </span>            :       HAL_LOG(&quot;TestHal::init()&quot;);</a>
 <a name="41"><span class="lineNum">      41 </span>            : </a>
 <a name="42"><span class="lineNum">      42 </span>            :       // save program start timestamp</a>
-<a name="43"><span class="lineNum">      43 </span><span class="lineCov">          5 :       start = std::chrono::high_resolution_clock::now();</span></a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">          6 :       start = std::chrono::high_resolution_clock::now();</span></a>
 <a name="44"><span class="lineNum">      44 </span>            : </a>
 <a name="45"><span class="lineNum">      45 </span>            :       // init emulated GPIO</a>
-<a name="46"><span class="lineNum">      46 </span><span class="lineCov">        165 :       for(int i = 0; i &lt; TEST_HAL_NUM_GPIO_PINS; i++) {</span></a>
-<a name="47"><span class="lineNum">      47 </span><span class="lineCov">        160 :         this-&gt;gpio[i].mode = 0;</span></a>
-<a name="48"><span class="lineNum">      48 </span><span class="lineCov">        160 :         this-&gt;gpio[i].value = 0;</span></a>
-<a name="49"><span class="lineNum">      49 </span><span class="lineCov">        160 :         this-&gt;gpio[i].event = false;</span></a>
-<a name="50"><span class="lineNum">      50 </span><span class="lineCov">        160 :         this-&gt;gpio[i].func = PIN_UNASSIGNED;</span></a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">        198 :       for(int i = 0; i &lt; TEST_HAL_NUM_GPIO_PINS; i++) {</span></a>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">        192 :         this-&gt;gpio[i].mode = 0;</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">        192 :         this-&gt;gpio[i].value = 0;</span></a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">        192 :         this-&gt;gpio[i].event = false;</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">        192 :         this-&gt;gpio[i].func = PIN_UNASSIGNED;</span></a>
 <a name="51"><span class="lineNum">      51 </span>            :       }</a>
 <a name="52"><span class="lineNum">      52 </span>            : </a>
 <a name="53"><span class="lineNum">      53 </span>            :       // wipe history log</a>
-<a name="54"><span class="lineNum">      54 </span><span class="lineCov">          5 :       this-&gt;spiLogWipe();</span></a>
-<a name="55"><span class="lineNum">      55 </span><span class="lineCov">          5 :     }</span></a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineCov">          6 :       this-&gt;spiLogWipe();</span></a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineCov">          6 :     }</span></a>
 <a name="56"><span class="lineNum">      56 </span>            : </a>
-<a name="57"><span class="lineNum">      57 </span><span class="lineCov">          5 :     void term() override {</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">          6 :     void term() override {</span></a>
 <a name="58"><span class="lineNum">      58 </span>            :       HAL_LOG(&quot;TestHal::term()&quot;);</a>
-<a name="59"><span class="lineNum">      59 </span><span class="lineCov">          5 :     }</span></a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineCov">          6 :     }</span></a>
 <a name="60"><span class="lineNum">      60 </span>            : </a>
-<a name="61"><span class="lineNum">      61 </span><span class="lineCov">          5 :     void pinMode(uint32_t pin, uint32_t mode) override {</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">          6 :     void pinMode(uint32_t pin, uint32_t mode) override {</span></a>
 <a name="62"><span class="lineNum">      62 </span>            :       HAL_LOG(&quot;TestHal::pinMode(pin=&quot; &lt;&lt; pin &lt;&lt; &quot;, mode=&quot; &lt;&lt; mode &lt;&lt; &quot; [&quot; &lt;&lt; ((mode == TEST_HAL_INPUT) ? &quot;INPUT&quot; : &quot;OUTPUT&quot;) &lt;&lt; &quot;])&quot;);</a>
 <a name="63"><span class="lineNum">      63 </span>            :       </a>
 <a name="64"><span class="lineNum">      64 </span>            :       // check the range</a>
-<a name="65"><span class="lineNum">      65 </span><span class="lineCov">          5 :       BOOST_ASSERT_MSG(pin &lt; TEST_HAL_NUM_GPIO_PINS, &quot;Pin number out of range&quot;);</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">          6 :       BOOST_ASSERT_MSG(pin &lt; TEST_HAL_NUM_GPIO_PINS, &quot;Pin number out of range&quot;);</span></a>
 <a name="66"><span class="lineNum">      66 </span>            : </a>
 <a name="67"><span class="lineNum">      67 </span>            :       // check known modes</a>
-<a name="68"><span class="lineNum">      68 </span><span class="lineCov">          5 :       BOOST_ASSERT_MSG(((mode == TEST_HAL_INPUT) || (mode == TEST_HAL_OUTPUT)), &quot;Invalid pin mode&quot;);</span></a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">          6 :       BOOST_ASSERT_MSG(((mode == TEST_HAL_INPUT) || (mode == TEST_HAL_OUTPUT)), &quot;Invalid pin mode&quot;);</span></a>
 <a name="69"><span class="lineNum">      69 </span>            : </a>
 <a name="70"><span class="lineNum">      70 </span>            :       // set mode</a>
-<a name="71"><span class="lineNum">      71 </span><span class="lineCov">          5 :       this-&gt;gpio[pin].mode = mode;</span></a>
-<a name="72"><span class="lineNum">      72 </span><span class="lineCov">          5 :     }</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">          6 :       this-&gt;gpio[pin].mode = mode;</span></a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineCov">          6 :     }</span></a>
 <a name="73"><span class="lineNum">      73 </span>            : </a>
-<a name="74"><span class="lineNum">      74 </span><span class="lineCov">       6811 :     void digitalWrite(uint32_t pin, uint32_t value) override {</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">       6812 :     void digitalWrite(uint32_t pin, uint32_t value) override {</span></a>
 <a name="75"><span class="lineNum">      75 </span>            :       HAL_LOG(&quot;TestHal::digitalWrite(pin=&quot; &lt;&lt; pin &lt;&lt; &quot;, value=&quot; &lt;&lt; value &lt;&lt; &quot; [&quot; &lt;&lt; ((value == TEST_HAL_LOW) ? &quot;LOW&quot; : &quot;HIGH&quot;) &lt;&lt; &quot;])&quot;);</a>
 <a name="76"><span class="lineNum">      76 </span>            : </a>
 <a name="77"><span class="lineNum">      77 </span>            :       // check the range</a>
-<a name="78"><span class="lineNum">      78 </span><span class="lineCov">       6811 :       BOOST_ASSERT_MSG(pin &lt; TEST_HAL_NUM_GPIO_PINS, &quot;Pin number out of range&quot;);</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">       6812 :       BOOST_ASSERT_MSG(pin &lt; TEST_HAL_NUM_GPIO_PINS, &quot;Pin number out of range&quot;);</span></a>
 <a name="79"><span class="lineNum">      79 </span>            : </a>
 <a name="80"><span class="lineNum">      80 </span>            :       // check it is output</a>
-<a name="81"><span class="lineNum">      81 </span><span class="lineCov">       6811 :       BOOST_ASSERT_MSG(this-&gt;gpio[pin].mode == TEST_HAL_OUTPUT, &quot;GPIO is not output!&quot;);</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">       6812 :       BOOST_ASSERT_MSG(this-&gt;gpio[pin].mode == TEST_HAL_OUTPUT, &quot;GPIO is not output!&quot;);</span></a>
 <a name="82"><span class="lineNum">      82 </span>            : </a>
 <a name="83"><span class="lineNum">      83 </span>            :       // check known values</a>
-<a name="84"><span class="lineNum">      84 </span><span class="lineCov">       6811 :       BOOST_ASSERT_MSG(((value == TEST_HAL_LOW) || (value == TEST_HAL_HIGH)), &quot;Invalid output value&quot;);</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">       6812 :       BOOST_ASSERT_MSG(((value == TEST_HAL_LOW) || (value == TEST_HAL_HIGH)), &quot;Invalid output value&quot;);</span></a>
 <a name="85"><span class="lineNum">      85 </span>            : </a>
 <a name="86"><span class="lineNum">      86 </span>            :       // set value</a>
-<a name="87"><span class="lineNum">      87 </span><span class="lineCov">       6811 :       this-&gt;gpio[pin].value = value;</span></a>
-<a name="88"><span class="lineNum">      88 </span><span class="lineCov">       6811 :       this-&gt;gpio[pin].event = true;</span></a>
-<a name="89"><span class="lineNum">      89 </span><span class="lineCov">       6811 :       if(radio) {</span></a>
-<a name="90"><span class="lineNum">      90 </span><span class="lineCov">       6811 :         this-&gt;radio-&gt;HandleGPIO();</span></a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineCov">       6812 :       this-&gt;gpio[pin].value = value;</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">       6812 :       this-&gt;gpio[pin].event = true;</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">       6812 :       if(radio) {</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">       6812 :         this-&gt;radio-&gt;HandleGPIO();</span></a>
 <a name="91"><span class="lineNum">      91 </span>            :       }</a>
-<a name="92"><span class="lineNum">      92 </span><span class="lineCov">       6811 :       this-&gt;gpio[pin].event = false;</span></a>
-<a name="93"><span class="lineNum">      93 </span><span class="lineCov">       6811 :     }</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">       6812 :       this-&gt;gpio[pin].event = false;</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">       6812 :     }</span></a>
 <a name="94"><span class="lineNum">      94 </span>            : </a>
 <a name="95"><span class="lineNum">      95 </span><span class="lineCov">       6414 :     uint32_t digitalRead(uint32_t pin) override {</span></a>
 <a name="96"><span class="lineNum">      96 </span>            :       HAL_LOG(&quot;TestHal::digitalRead(pin=&quot; &lt;&lt; pin &lt;&lt; &quot;)&quot;);</a>
@@ -304,19 +304,19 @@
 <a name="242"><span class="lineNum">     242 </span><span class="lineCov">         12 :       return(ret);</span></a>
 <a name="243"><span class="lineNum">     243 </span>            :     }</a>
 <a name="244"><span class="lineNum">     244 </span>            : </a>
-<a name="245"><span class="lineNum">     245 </span><span class="lineCov">         17 :     void spiLogWipe() {</span></a>
-<a name="246"><span class="lineNum">     246 </span><span class="lineCov">         17 :       memset(this-&gt;spiLog, 0x00, TEST_HAL_SPI_LOG_LENGTH);</span></a>
-<a name="247"><span class="lineNum">     247 </span><span class="lineCov">         17 :       this-&gt;spiLogPtr = this-&gt;spiLog;</span></a>
-<a name="248"><span class="lineNum">     248 </span><span class="lineCov">         17 :     }</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">         18 :     void spiLogWipe() {</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">         18 :       memset(this-&gt;spiLog, 0x00, TEST_HAL_SPI_LOG_LENGTH);</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineCov">         18 :       this-&gt;spiLogPtr = this-&gt;spiLog;</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">         18 :     }</span></a>
 <a name="249"><span class="lineNum">     249 </span>            : </a>
 <a name="250"><span class="lineNum">     250 </span>            :     // method that &quot;connects&quot; the emualted radio hardware to this HAL</a>
-<a name="251"><span class="lineNum">     251 </span><span class="lineCov">          5 :     void connectRadio(EmulatedRadio* r) {</span></a>
-<a name="252"><span class="lineNum">     252 </span><span class="lineCov">          5 :       this-&gt;radio = r;</span></a>
-<a name="253"><span class="lineNum">     253 </span><span class="lineCov">          5 :       this-&gt;radio-&gt;connect(&amp;this-&gt;gpio[EMULATED_RADIO_NSS_PIN],</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">          6 :     void connectRadio(EmulatedRadio* r) {</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineCov">          6 :       this-&gt;radio = r;</span></a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">          6 :       this-&gt;radio-&gt;connect(&amp;this-&gt;gpio[EMULATED_RADIO_NSS_PIN],</span></a>
 <a name="254"><span class="lineNum">     254 </span>            :                            &amp;this-&gt;gpio[EMULATED_RADIO_IRQ_PIN],</a>
 <a name="255"><span class="lineNum">     255 </span>            :                            &amp;this-&gt;gpio[EMULATED_RADIO_RST_PIN],</a>
 <a name="256"><span class="lineNum">     256 </span>            :                            &amp;this-&gt;gpio[EMULATED_RADIO_GPIO_PIN]);</a>
-<a name="257"><span class="lineNum">     257 </span><span class="lineCov">          5 :     }</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">          6 :     }</span></a>
 <a name="258"><span class="lineNum">     258 </span>            : </a>
 <a name="259"><span class="lineNum">     259 </span>            :   private:</a>
 <a name="260"><span class="lineNum">     260 </span>            :     // array of emulated GPIO pins</a>
