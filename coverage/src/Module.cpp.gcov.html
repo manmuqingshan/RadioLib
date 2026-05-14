@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2026-05-12 00:01:38</td>
+            <td class="headerValue">2026-05-14 08:19:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">19</td>
@@ -78,9 +78,9 @@
 <a name="16"><span class="lineNum">      16 </span>            : }</a>
 <a name="17"><span class="lineNum">      17 </span>            : #endif</a>
 <a name="18"><span class="lineNum">      18 </span>            : </a>
-<a name="19"><span class="lineNum">      19 </span><span class="lineCov">         58 : Module::Module(RadioLibHal *hal, uint32_t cs, uint32_t irq, uint32_t rst, uint32_t gpio) : csPin(cs), irqPin(irq), rstPin(rst), gpioPin(gpio) {</span></a>
-<a name="20"><span class="lineNum">      20 </span><span class="lineCov">         58 :   this-&gt;hal = hal;</span></a>
-<a name="21"><span class="lineNum">      21 </span><span class="lineCov">         58 : }</span></a>
+<a name="19"><span class="lineNum">      19 </span><span class="lineCov">         59 : Module::Module(RadioLibHal *hal, uint32_t cs, uint32_t irq, uint32_t rst, uint32_t gpio) : csPin(cs), irqPin(irq), rstPin(rst), gpioPin(gpio) {</span></a>
+<a name="20"><span class="lineNum">      20 </span><span class="lineCov">         59 :   this-&gt;hal = hal;</span></a>
+<a name="21"><span class="lineNum">      21 </span><span class="lineCov">         59 : }</span></a>
 <a name="22"><span class="lineNum">      22 </span>            : </a>
 <a name="23"><span class="lineNum">      23 </span><span class="lineNoCov">          0 : Module::Module(const Module&amp; mod) {</span></a>
 <a name="24"><span class="lineNum">      24 </span><span class="lineNoCov">          0 :   *this = mod;</span></a>
@@ -107,18 +107,18 @@
 <a name="45"><span class="lineNum">      45 </span>            : }</a>
 <a name="46"><span class="lineNum">      46 </span>            : </a>
 <a name="47"><span class="lineNum">      47 </span>            : static volatile const char rlb_info[] = RADIOLIB_INFO;</a>
-<a name="48"><span class="lineNum">      48 </span><span class="lineCov">          6 : void Module::init() {</span></a>
-<a name="49"><span class="lineNum">      49 </span><span class="lineCov">          6 :   this-&gt;hal-&gt;init();</span></a>
-<a name="50"><span class="lineNum">      50 </span><span class="lineCov">          6 :   this-&gt;hal-&gt;pinMode(csPin, this-&gt;hal-&gt;GpioModeOutput);</span></a>
-<a name="51"><span class="lineNum">      51 </span><span class="lineCov">          6 :   this-&gt;hal-&gt;digitalWrite(csPin, this-&gt;hal-&gt;GpioLevelHigh);</span></a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">          7 : void Module::init() {</span></a>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">          7 :   this-&gt;hal-&gt;init();</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">          7 :   this-&gt;hal-&gt;pinMode(csPin, this-&gt;hal-&gt;GpioModeOutput);</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">          7 :   this-&gt;hal-&gt;digitalWrite(csPin, this-&gt;hal-&gt;GpioLevelHigh);</span></a>
 <a name="52"><span class="lineNum">      52 </span>            :   RADIOLIB_DEBUG_BASIC_PRINTLN(RADIOLIB_INFO);</a>
-<a name="53"><span class="lineNum">      53 </span><span class="lineCov">          6 :   RADIOLIB_VALUE_USED(rlb_info);</span></a>
-<a name="54"><span class="lineNum">      54 </span><span class="lineCov">          6 : }</span></a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineCov">          7 :   RADIOLIB_VALUE_USED(rlb_info);</span></a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineCov">          7 : }</span></a>
 <a name="55"><span class="lineNum">      55 </span>            : </a>
-<a name="56"><span class="lineNum">      56 </span><span class="lineCov">          6 : void Module::term() {</span></a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineCov">          7 : void Module::term() {</span></a>
 <a name="57"><span class="lineNum">      57 </span>            :   // stop hardware interfaces (if they were initialized by the library)</a>
-<a name="58"><span class="lineNum">      58 </span><span class="lineCov">          6 :   this-&gt;hal-&gt;term();</span></a>
-<a name="59"><span class="lineNum">      59 </span><span class="lineCov">          6 : }</span></a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineCov">          7 :   this-&gt;hal-&gt;term();</span></a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineCov">          7 : }</span></a>
 <a name="60"><span class="lineNum">      60 </span>            : </a>
 <a name="61"><span class="lineNum">      61 </span><span class="lineCov">        386 : int16_t Module::SPIgetRegValue(uint32_t reg, uint8_t msb, uint8_t lsb) {</span></a>
 <a name="62"><span class="lineNum">      62 </span><span class="lineCov">        386 :   if((msb &gt; 7) || (lsb &gt; 7) || (lsb &gt; msb)) {</span></a>
