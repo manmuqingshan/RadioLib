@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2026-08-11 18:41:13</td>
+            <td class="headerValue">2026-08-12 02:55:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">8</td>
@@ -735,7 +735,7 @@
 <a name="673"><span class="lineNum">     673 </span><span class="lineNoCov">          0 :   int16_t state = this-&gt;SPIcommand(RADIOLIB_LR11X0_CMD_GET_LORA_RX_HEADER_INFOS, false, buff, sizeof(buff));</span></a>
 <a name="674"><span class="lineNum">     674 </span>            : </a>
 <a name="675"><span class="lineNum">     675 </span>            :   // pass the replies</a>
-<a name="676"><span class="lineNum">     676 </span><span class="lineNoCov">          0 :   if(cr) { *cr = (buff[0] &amp; 0x70) &gt;&gt; 4; }</span></a>
+<a name="676"><span class="lineNum">     676 </span><span class="lineNoCov">          0 :   if(cr) { *cr = buff[0] &amp; RADIOLIB_LR11X0_LAST_HEADER_CR_MASK; }</span></a>
 <a name="677"><span class="lineNum">     677 </span><span class="lineNoCov">          0 :   if(hasCRC) { *hasCRC = (buff[0] &amp; RADIOLIB_LR11X0_LAST_HEADER_CRC_ENABLED) != 0; }</span></a>
 <a name="678"><span class="lineNum">     678 </span>            : </a>
 <a name="679"><span class="lineNum">     679 </span><span class="lineNoCov">          0 :   return(state);</span></a>
